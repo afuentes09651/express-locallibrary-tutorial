@@ -6,13 +6,16 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var catalogRouter = require('./routes/catalog'); //This is to import our routes that are in catalog
 
-//mongoose connection code
+// Set up mongoose connection
 var mongoose = require('mongoose');
-var mongoDB =  "mongodb+srv://wuberto:wubba@cluster0.dvbcd.mongodb.net/local_library?retryWrites=true&w=majority";
-mongoose.connect(mongoDB,{useNewUrlParser: true, useUnifiedTopology: true});
-var db = mongoose.connecton;
-db.on('error',console.error.bind(console, 'MongoDB connection error:'));
+var dev_db_url = 'mongodb+srv://wuberto:wubba@cluster0.a9azn.mongodb.net/local_library?retryWrites=true';
+var mongoDB = process.env.MONGODB_URI || dev_db_url;
+mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.Promise = global.Promise;
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
 var app = express();
@@ -29,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/catalog',catalogRouter); //this adds the catalog routes to the middleware chain
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
